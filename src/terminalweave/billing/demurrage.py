@@ -58,6 +58,13 @@ class DemurrageTariff:
             if band.to_day is None and band is not ordered[-1]:
                 raise ValidationError('open-ended band must be last')
 
+    @property
+    def currency(self) -> str:
+        currencies = {band.daily_rate.currency for band in self.bands}
+        if len(currencies) != 1:
+            raise ValidationError('demurrage tariff has mixed currencies')
+        return currencies.pop()
+
     def rate_for_charge_day(self, charge_day: int) -> Money:
         for band in self.bands:
             if charge_day >= band.from_day and (band.to_day is None or charge_day <= band.to_day):

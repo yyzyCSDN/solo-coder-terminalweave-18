@@ -33,6 +33,15 @@ class TariffBook:
         if len(self._map) != len(tariffs):
             raise ValidationError('duplicate handling tariff')
 
+    @property
+    def currency(self) -> str:
+        currencies = {t.base.currency for t in self._map.values()}
+        if not currencies:
+            raise ValidationError('tariff book has no tariffs')
+        if len(currencies) != 1:
+            raise ValidationError('tariff book has mixed currencies')
+        return currencies.pop()
+
     def quote(self, operation: str, size: int, count: int=1, **flags) -> Money:
         if count < 0:
             raise ValidationError('count cannot be negative')
