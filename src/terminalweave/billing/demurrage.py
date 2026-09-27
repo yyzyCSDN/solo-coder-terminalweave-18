@@ -47,6 +47,9 @@ class DemurrageTariff:
     def __post_init__(self) -> None:
         if self.free_chargeable_days < 0 or not self.bands:
             raise ValidationError('invalid demurrage tariff')
+        currency = self.bands[0].daily_rate.currency
+        if any(band.daily_rate.currency != currency for band in self.bands):
+            raise ValidationError('tariff band currency mismatch')
         ordered = sorted(self.bands, key=lambda b: b.from_day)
         if ordered[0].from_day != 1:
             raise ValidationError('tariff bands must start at day 1')

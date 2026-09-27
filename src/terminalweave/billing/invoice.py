@@ -10,6 +10,7 @@ class InvoiceLine:
     description: str
     quantity: Decimal
     unit_price: Money
+    rate_version_id: str | None = None
 
     def __post_init__(self):
         if self.quantity < 0:

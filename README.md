@@ -28,3 +28,18 @@ library components intended to be composed by an embedding application.
 ## Main packages
 
 `marine`, `cranes`, `yard`, `gate`, `customs`, `reefer`, `hazmat`, `equipment`, `rail`, `billing`, `transshipment`, `planning`, `persistence`, `reporting`, and `api`.
+
+## Versioned billing rates
+
+`billing.rate_versions` holds append-only `RateVersion` timelines (half-open
+`effective_from`..`effective_to` intervals) for handling tariffs
+(`billing.tariffs`), demurrage tariffs (`billing.demurrage`) and flat
+surcharges (`billing.surcharges`). `billing.settlement.SettlementService`
+prices every charge against the rule in effect when the business actually
+occurred, records that `rate_version_id` on each invoice line, and rejects
+settlement with an explanatory error when intervals overlap, the version
+currency does not match the invoice currency, or no rule is in effect
+(including timeline gaps). Adding a later version never changes historical
+lines; `replay(invoice, request)` reproduces a historical invoice and reports
+the first differing line if anything has drifted. Demurrage for a stay is
+governed by the tariff in effect at discharge.
